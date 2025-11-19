@@ -1,28 +1,64 @@
 # lab-data-integrity-hashing
-#  Integridad de Datos: Prueba de Concepto con Hashing
+#  Integridad de Datos: Hashing y Automatización (FIM)
 
-###  Resumen del Lab
-Este proyecto documenta una prueba práctica sobre el principio de **Integridad** (Tríada CIA). El objetivo fue demostrar el "Efecto Avalancha" en criptografía: cómo una modificación imperceptible en un archivo altera radicalmente su firma digital (Hash).
-
-###  Herramientas Utilizadas
-* **Entorno:** Linux (Ubuntu Virtual Machine).
-* **Algoritmo:** SHA-256 (Secure Hash Algorithm 256-bit).
-* **Comandos:** `sha256sum`, `echo`, `Output Redirection`.
+###  Resumen del Proyecto
+Este laboratorio explora el principio de **Integridad** de la tríada CIA. El objetivo fue demostrar cómo detectar modificaciones no autorizadas en archivos críticos.
+El proyecto se divide en dos fases:
+1.  **Prueba de Concepto (PoC):** Verificación manual con comandos de Linux.
+2.  **Automatización:** Desarrollo de un script en Python (File Integrity Monitor) para detección en tiempo real.
 
 ---
 
-###  Procedimiento y Evidencia
-
-1. **Estado Original:** Se creó un archivo simulando una base de datos crítica (`usuarios.db`) y se calculó su hash inicial (`08266...`).
-2. **Compromiso de Integridad:** Se simuló una alteración de datos inyectando un solo caracter al final del archivo.
-3. **Verificación:** Se recalculó el hash (`24906...`), evidenciando un cambio total en la firma.
-
-####  Captura de Pantalla de la Terminal
-En la siguiente imagen se observa la ejecución de los comandos y el cambio de hash:
-
-![Evidencia del Lab](evidencia.png)
+###  Stack Tecnológico
+* **OS:** Linux (Ubuntu Server).
+* **Lenguajes:** Bash, Python 3.
+* **Criptografía:** SHA-256.
 
 ---
 
-###  Conclusión Técnica
-Este laboratorio demuestra la importancia del **Hashing** en ciberseguridad. Cualquier modificación no autorizada en un archivo o base de datos rompe la integridad de la firma digital, alertando inmediatamente sobre el incidente.
+###  Fase 1: Verificación Manual (CLI)
+Primero, utilicé la terminal para entender el "Efecto Avalancha". Creé un archivo, calculé su hash, lo modifiqué levemente y verifiqué cómo la firma digital cambiaba radicalmente.
+
+#### Evidencia Manual
+> *Aquí se observa el cambio de hash tras agregar un solo caracter.*
+![Evidencia Manual](evidencia.png)
+
+---
+
+###  Fase 2: Automatización con Python
+Tras entender el concepto manual, decidí **automatizar la defensa**. Desarrollé un script simple de *File Integrity Monitoring (FIM)* en Python.
+![Evidencia monitoreo](monitoreo.png)
+**El Script (`monitor.py`):**
+* Calcula el hash SHA-256 inicial del archivo objetivo.
+* Entra en un bucle infinito monitoreando el archivo cada 1 segundo.
+* Si detecta que el hash cambia, lanza una **ALERTA** inmediata en la consola.
+
+#### Código del Script
+```python
+import hashlib, time, os
+
+archivo = "usuarios.db"
+
+# Funcion simple para obtener el hash SHA-256
+def obtener_hash():
+    with open(archivo, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+# Crear archivo si no existe para la prueba
+if not os.path.exists(archivo):
+    with open(archivo, "w") as f:
+        f.write("secreto")
+
+# Guardamos el estado inicial (Integridad OK)
+base = obtener_hash()
+print(f"Vigilando: {archivo}")
+print(f"Hash Base: {base}")
+
+# Bucle de monitoreo
+while True:
+    time.sleep(1)
+    # Si el hash actual es distinto al base -> ALERTA
+    if obtener_hash() != base:
+        print("ALERTA: ARCHIVO MODIFICADO!")
+        print(f"Nuevo Hash: {obtener_hash()}")
+        break
