@@ -28,6 +28,8 @@ Primero, utilicé la terminal para entender el "Efecto Avalancha". Creé un arch
 ###  Fase 2: Automatización con Python
 Tras entender el concepto manual, decidí **automatizar la defensa**. Desarrollé un script simple de *File Integrity Monitoring (FIM)* en Python.
 ![Evidencia monitoreo](monitoreo.png)
+
+
 **El Script (`monitor.py`):**
 * Calcula el hash SHA-256 inicial del archivo objetivo.
 * Entra en un bucle infinito monitoreando el archivo cada 1 segundo.
